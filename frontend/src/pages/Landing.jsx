@@ -47,9 +47,19 @@ const Landing = () => {
     }
   };
 
+  const formatUrl = (urlStr) => {
+    let formatted = urlStr.trim();
+    if (formatted && !/^https?:\/\//i.test(formatted)) {
+      return 'https://' + formatted;
+    }
+    return formatted;
+  };
+
   const handleQuickShorten = async (e) => {
-    e.preventDefault();
-    if (!quickUrl.trim()) {
+    if (e) e.preventDefault();
+    const finalUrl = formatUrl(quickUrl);
+    
+    if (!finalUrl) {
       toast.error('Please enter a URL');
       return;
     }
@@ -62,7 +72,7 @@ const Landing = () => {
     setShortenedResult(null);
     try {
       const { data } = await api.post('/urls', { 
-        originalUrl: quickUrl,
+        originalUrl: finalUrl,
         customAlias: customAlias.trim() || undefined,
         expiresAt: expiresAt || undefined
       });
@@ -89,15 +99,17 @@ const Landing = () => {
   };
 
   const handleSafetyCheck = async (e) => {
-    e.preventDefault();
-    if (!safetyUrl.trim()) {
+    if (e) e.preventDefault();
+    const finalUrl = formatUrl(safetyUrl);
+    
+    if (!finalUrl) {
       toast.error('Please enter a URL to check');
       return;
     }
     setChecking(true);
     setSafetyResult(null);
     try {
-      const { data } = await api.post('/preview', { url: safetyUrl });
+      const { data } = await api.post('/preview', { url: finalUrl });
       setSafetyResult(data);
     } catch (err) {
       const msg = err.response?.data?.error || 'Failed to analyze URL';
@@ -265,7 +277,7 @@ const Landing = () => {
                       Destination URL <span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="url"
+                      type="text"
                       value={quickUrl}
                       onChange={(e) => { setQuickUrl(e.target.value); setShortenedResult(null); }}
                       placeholder="https://example.com/your-long-url"
@@ -304,13 +316,13 @@ const Landing = () => {
                       type="date"
                       value={expiresAt}
                       onChange={(e) => setExpiresAt(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
                       className="input-field"
                     />
                   </div>
 
                   <button
                     type="submit"
+                    onClick={handleQuickShorten}
                     disabled={shortening}
                     className="btn-primary w-full mt-2 py-2.5 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                   >
@@ -349,7 +361,7 @@ const Landing = () => {
               <div className="space-y-4">
                 <form onSubmit={handleSafetyCheck} className="flex flex-col gap-3">
                   <input
-                    type="url"
+                    type="text"
                     value={safetyUrl}
                     onChange={(e) => { setSafetyUrl(e.target.value); setSafetyResult(null); }}
                     placeholder="Enter URL to check safety..."
@@ -358,6 +370,7 @@ const Landing = () => {
                   />
                   <button
                     type="submit"
+                    onClick={handleSafetyCheck}
                     disabled={checking}
                     className="btn-secondary w-full py-2.5 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                   >
