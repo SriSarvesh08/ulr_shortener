@@ -52,6 +52,9 @@ model Visit {
   browser   String?
   device    String?
   os        String?
+  country   String?
+  region    String?
+  city      String?
   referer   String?
   timestamp DateTime @default(now())
 

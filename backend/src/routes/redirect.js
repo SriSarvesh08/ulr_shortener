@@ -1,5 +1,6 @@
 const express = require('express');
 const UAParser = require('ua-parser-js');
+const geoip = require('geoip-lite');
 const prisma = require('../config/prisma');
 
 const router = express.Router();
@@ -41,6 +42,12 @@ router.get('/:shortCode', async (req, res) => {
                req.socket?.remoteAddress ||
                'unknown';
 
+    // Get geo info
+    const geo = geoip.lookup(ip);
+    const country = geo ? geo.country : null;
+    const region = geo ? geo.region : null;
+    const city = geo ? geo.city : null;
+
     // Redirect to original URL IMMEDIATELY
     res.redirect(302, url.originalUrl);
 
@@ -54,6 +61,9 @@ router.get('/:shortCode', async (req, res) => {
           browser: browserInfo.name ? `${browserInfo.name} ${browserInfo.version || ''}`.trim() : null,
           device: deviceInfo.type || 'desktop',
           os: osInfo.name ? `${osInfo.name} ${osInfo.version || ''}`.trim() : null,
+          country,
+          region,
+          city,
           referer: req.headers['referer'] || req.headers['referrer'] || null,
         },
       }),

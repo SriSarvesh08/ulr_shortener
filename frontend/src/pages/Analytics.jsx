@@ -71,12 +71,14 @@ const Analytics = () => {
       return;
     }
     
-    const headers = ['Timestamp', 'Browser', 'Device', 'OS', 'IP Address'];
+    const headers = ['Timestamp', 'Browser', 'Device', 'OS', 'Country', 'City', 'IP Address'];
     const rows = data.analytics.recentVisits.map(v => [
       v.timestamp,
       v.browser || 'Unknown',
       v.device || 'Desktop',
       v.os || 'Unknown',
+      v.country || 'Unknown',
+      v.city || 'Unknown',
       v.ip || 'Unknown'
     ]);
     
@@ -311,44 +313,116 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Recent Visits Table */}
-        <div className="bg-white border border-surface-200 rounded-lg lg:col-span-2 flex flex-col shadow-sm">
-          <div className="p-5 border-b border-surface-200 flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider">Recent Visits</h3>
-            <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-2 text-xs py-1.5 px-3">
-              <Download size={13} /> Export CSV
-            </button>
-          </div>
+        {/* Geography & Visits Column */}
+        <div className="space-y-6 lg:col-span-2">
           
-          <div className="flex-1 overflow-auto">
-            {analytics.recentVisits?.length > 0 ? (
-              <table className="w-full text-left text-sm whitespace-nowrap">
-                <thead className="bg-surface-50 text-surface-500 text-xs border-b border-surface-200">
-                  <tr>
-                    <th className="px-5 py-2.5 font-medium">Time</th>
-                    <th className="px-5 py-2.5 font-medium">Browser</th>
-                    <th className="px-5 py-2.5 font-medium">Device/OS</th>
-                    <th className="px-5 py-2.5 font-medium text-right">IP</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-surface-200">
-                  {analytics.recentVisits.slice(0, 15).map((visit) => (
-                    <tr key={visit.id} className="hover:bg-surface-50 text-surface-700">
-                      <td className="px-5 py-2.5 text-xs">{formatDateTime(visit.timestamp)}</td>
-                      <td className="px-5 py-2.5 text-xs">{visit.browser || 'Unknown'}</td>
-                      <td className="px-5 py-2.5 text-xs text-surface-500">
-                        {visit.device || 'Desktop'} • {visit.os || 'Unknown'}
-                      </td>
-                      <td className="px-5 py-2.5 font-mono text-xs text-right text-surface-400">{visit.ip}</td>
+          {/* Geography Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Top Countries */}
+            <div className="bg-white border border-surface-200 rounded-lg p-5 shadow-sm">
+              <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-4">Top Countries</h3>
+              {analytics.countryStats?.length > 0 ? (
+                <div className="space-y-3">
+                  {analytics.countryStats.map((c, i) => {
+                    const percent = analytics.totalClicks > 0 ? Math.round((c.count / analytics.totalClicks) * 100) : 0;
+                    return (
+                      <div key={i}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-surface-800 font-medium">{c.name}</span>
+                          <span className="text-surface-500 text-xs">{c.count} ({percent}%)</span>
+                        </div>
+                        <div className="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-emerald-500 rounded-full"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-surface-500 text-center py-2">No location data</p>
+              )}
+            </div>
+
+            {/* Top Cities */}
+            <div className="bg-white border border-surface-200 rounded-lg p-5 shadow-sm">
+              <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-4">Top Cities</h3>
+              {analytics.cityStats?.length > 0 ? (
+                <div className="space-y-3">
+                  {analytics.cityStats.map((c, i) => {
+                    const percent = analytics.totalClicks > 0 ? Math.round((c.count / analytics.totalClicks) * 100) : 0;
+                    return (
+                      <div key={i}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-surface-800 font-medium">{c.name}</span>
+                          <span className="text-surface-500 text-xs">{c.count} ({percent}%)</span>
+                        </div>
+                        <div className="w-full h-2 bg-surface-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-amber-500 rounded-full"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-surface-500 text-center py-2">No location data</p>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Visits Table */}
+          <div className="bg-white border border-surface-200 rounded-lg flex flex-col shadow-sm">
+            <div className="p-5 border-b border-surface-200 flex items-center justify-between">
+              <h3 className="text-xs font-semibold text-surface-500 uppercase tracking-wider">Recent Visits</h3>
+              <button onClick={handleExportCSV} className="btn-secondary flex items-center gap-2 text-xs py-1.5 px-3">
+                <Download size={13} /> Export CSV
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-auto max-h-[400px]">
+              {analytics.recentVisits?.length > 0 ? (
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-surface-50 text-surface-500 text-xs border-b border-surface-200 sticky top-0">
+                    <tr>
+                      <th className="px-5 py-2.5 font-medium">Time</th>
+                      <th className="px-5 py-2.5 font-medium">Location</th>
+                      <th className="px-5 py-2.5 font-medium">System</th>
+                      <th className="px-5 py-2.5 font-medium text-right">IP Address</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="flex items-center justify-center py-10">
-                <p className="text-sm text-surface-500">No visits recorded</p>
-              </div>
-            )}
+                  </thead>
+                  <tbody className="divide-y divide-surface-200">
+                    {analytics.recentVisits.slice(0, 15).map((visit) => {
+                      const isLocalhost = visit.ip === '::1' || visit.ip === '127.0.0.1';
+                      const locationDisplay = isLocalhost 
+                        ? 'Local Network' 
+                        : (visit.city && visit.country ? `${visit.city}, ${visit.country}` : visit.country || 'Unknown');
+                        
+                      return (
+                        <tr key={visit.id} className="hover:bg-surface-50 text-surface-700">
+                          <td className="px-5 py-2.5 text-xs text-surface-500">{formatDateTime(visit.timestamp)}</td>
+                          <td className="px-5 py-2.5 text-xs">
+                            {locationDisplay}
+                          </td>
+                          <td className="px-5 py-2.5 text-xs text-surface-600">
+                            {visit.browser || 'Unknown'} • {visit.device || 'Desktop'}
+                          </td>
+                          <td className="px-5 py-2.5 font-mono text-xs text-right text-surface-400">{visit.ip}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="flex items-center justify-center py-10">
+                  <p className="text-sm text-surface-500">No visits recorded</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

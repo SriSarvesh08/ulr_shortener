@@ -353,6 +353,24 @@ router.get('/:id/analytics', async (req, res) => {
       take: 10,
     });
 
+    // Get country stats
+    const countryStats = await prisma.visit.groupBy({
+      by: ['country'],
+      where: { urlId: url.id },
+      _count: { country: true },
+      orderBy: { _count: { country: 'desc' } },
+      take: 10,
+    });
+
+    // Get city stats
+    const cityStats = await prisma.visit.groupBy({
+      by: ['city'],
+      where: { urlId: url.id },
+      _count: { city: true },
+      orderBy: { _count: { city: 'desc' } },
+      take: 10,
+    });
+
     // Last visited
     const lastVisit = recentVisits.length > 0 ? recentVisits[0].timestamp : null;
 
@@ -387,6 +405,8 @@ router.get('/:id/analytics', async (req, res) => {
           browser: v.browser,
           device: v.device,
           os: v.os,
+          country: v.country,
+          city: v.city,
           referer: v.referer,
           timestamp: v.timestamp,
         })),
@@ -398,6 +418,14 @@ router.get('/:id/analytics', async (req, res) => {
         deviceStats: deviceStats.map((d) => ({
           name: d.device || 'Unknown',
           count: d._count.device,
+        })),
+        countryStats: countryStats.map((c) => ({
+          name: c.country || 'Unknown',
+          count: c._count.country,
+        })),
+        cityStats: cityStats.map((c) => ({
+          name: c.city || 'Unknown',
+          count: c._count.city,
         })),
         smartSummary,
       },
