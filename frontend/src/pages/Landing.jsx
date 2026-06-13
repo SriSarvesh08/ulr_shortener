@@ -269,7 +269,7 @@ const Landing = () => {
               </div>
               
               <div className="space-y-4">
-                <form onSubmit={handleQuickShorten} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4">
                   {/* Destination URL */}
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-surface-700 mb-2">
@@ -321,14 +321,14 @@ const Landing = () => {
                   </div>
 
                   <button
-                    type="submit"
+                    type="button"
                     onClick={handleQuickShorten}
                     disabled={shortening}
                     className="btn-primary w-full mt-2 py-2.5 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                   >
                     {shortening ? <Loader2 size={16} className="animate-spin" /> : 'Shorten Link'}
                   </button>
-                </form>
+                </div>
 
                 {shortenedResult && (
                   <div className="p-3 bg-surface-50 border border-surface-200 rounded-md flex items-center justify-between">
@@ -359,7 +359,7 @@ const Landing = () => {
               </div>
 
               <div className="space-y-4">
-                <form onSubmit={handleSafetyCheck} className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3">
                   <input
                     type="text"
                     value={safetyUrl}
@@ -369,14 +369,14 @@ const Landing = () => {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     onClick={handleSafetyCheck}
                     disabled={checking}
                     className="btn-secondary w-full py-2.5 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
                   >
                     {checking ? <Loader2 size={16} className="animate-spin" /> : 'Check Safety'}
                   </button>
-                </form>
+                </div>
 
                 {safetyResult && (
                   <div className="p-4 bg-surface-50 border border-surface-200 rounded-md">
