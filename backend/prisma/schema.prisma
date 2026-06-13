@@ -1,0 +1,61 @@
+// Katomaran URL Shortener - Prisma Schema
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  urls      Url[]
+
+  @@map("users")
+}
+
+model Url {
+  id          String    @id @default(uuid())
+  originalUrl String    @map("original_url")
+  shortCode   String    @unique @map("short_code")
+  customAlias String?   @map("custom_alias")
+  expiresAt   DateTime? @map("expires_at")
+  clicks       Int       @default(0)
+  safetyScore  Int       @default(100) @map("safety_score")
+  safetyStatus String    @default("Safe") @map("safety_status")
+  domain       String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  userId       String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visits      Visit[]
+
+  @@index([userId])
+  @@index([shortCode])
+  @@map("urls")
+}
+
+model Visit {
+  id        String   @id @default(uuid())
+  urlId     String   @map("url_id")
+  url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+  ip        String?
+  userAgent String?  @map("user_agent")
+  browser   String?
+  device    String?
+  os        String?
+  referer   String?
+  timestamp DateTime @default(now())
+
+  @@index([urlId])
+  @@index([timestamp])
+  @@map("visits")
+}
