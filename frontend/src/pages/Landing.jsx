@@ -56,7 +56,6 @@ const Landing = () => {
   };
 
   const handleQuickShorten = async () => {
-    console.log('[Landing] handleQuickShorten called, quickUrl:', quickUrl, 'user:', !!user);
     const finalUrl = formatUrl(quickUrl);
     
     if (!finalUrl) {
@@ -71,18 +70,14 @@ const Landing = () => {
     setShortening(true);
     setShortenedResult(null);
     try {
-      const payload = { 
+      const { data } = await api.post('/urls', { 
         originalUrl: finalUrl,
         customAlias: customAlias.trim() || undefined,
         expiresAt: expiresAt || undefined
-      };
-      console.log('[Landing] POST /urls payload:', payload);
-      const { data } = await api.post('/urls', payload);
-      console.log('[Landing] POST /urls response:', data);
+      });
       setShortenedResult(data.url);
       toast.success('URL shortened successfully!');
     } catch (err) {
-      console.error('[Landing] POST /urls error:', err);
       const msg = err.response?.data?.error || 'Failed to shorten URL';
       toast.error(msg);
     } finally {
@@ -103,7 +98,6 @@ const Landing = () => {
   };
 
   const handleSafetyCheck = async () => {
-    console.log('[Landing] handleSafetyCheck called, safetyUrl:', safetyUrl);
     const finalUrl = formatUrl(safetyUrl);
     
     if (!finalUrl) {
@@ -113,12 +107,9 @@ const Landing = () => {
     setChecking(true);
     setSafetyResult(null);
     try {
-      console.log('[Landing] POST /preview payload:', { url: finalUrl });
       const { data } = await api.post('/preview', { url: finalUrl });
-      console.log('[Landing] POST /preview response:', data);
       setSafetyResult(data);
     } catch (err) {
-      console.error('[Landing] POST /preview error:', err);
       const msg = err.response?.data?.error || 'Failed to analyze URL';
       toast.error(msg);
     } finally {
