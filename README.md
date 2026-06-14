@@ -206,3 +206,31 @@ npm run dev
 ## 📄 License
 
 This project is open-source and available under the [MIT License](LICENSE).
+
+---
+
+## 🤔 Assumptions Made
+
+- Users will access the application through a modern web browser.
+- The PostgreSQL database is accessible by the backend server.
+- Environment supports Node.js and React (e.g. Render, Netlify).
+- Basic rate limiting is sufficient for MVP protection.
+- The local offline `geoip-lite` database is used for IP geolocation to reduce reliance on external paid APIs.
+
+---
+
+## 🧠 AI Planning & Architecture
+
+- **[AI Planning Document](AI_PLANNING.md)**: Contains the initial prompts, feature breakdown, and step-by-step implementation plan.
+- **[Architecture Document](ARCHITECTURE.md)**: Provides an overview of the system architecture, database schema, and component hierarchy.
+
+---
+
+## 🎥 Video Demonstration
+
+Check out the full video demonstration and explanation of the application on YouTube:
+**[Watch the Demo Video](https://youtu.be/rXzV19E8V_I)**
+
+---
+
+This project is a part of a hackathon run by https://katomaran.com
